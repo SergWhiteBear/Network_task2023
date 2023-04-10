@@ -11,7 +11,3 @@
 ```
 >>> python main.py 8.8.8.8
 ```
-
-### Демонстрация работы программы:
-
-![](https://im2.ezgif.com/tmp/ezgif-2-336d44f0e1.gif)
