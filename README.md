@@ -1,1 +1,2 @@
-# Network_task2023
+Пример работы:
+![img.png](img.png)
