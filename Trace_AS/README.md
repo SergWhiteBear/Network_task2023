@@ -14,4 +14,4 @@
 
 ### Демонстрация работы программы:
 
-![](Screens and gif/gif_Trace_AS.gif)
+![](gif_Trace_AS.gif)
