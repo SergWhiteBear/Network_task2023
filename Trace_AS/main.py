@@ -56,24 +56,26 @@ def get_trace_as(address):
             print(raw_line)
             curr_ip = ip_regex.findall(raw_line)[0]
         elif time_out in raw_line:
-            if count_time_out == 4:
-                break
             count_time_out += 1
+            if count_time_out == 3:
+                break
         elif hops in raw_line:
             trace_begin = True
         route_ips = ip_regex.findall(raw_line)
         if not route_ips:
             continue
+        count_time_out = 0
         ip = route_ips[0]
         if trace_begin:
             if ip == curr_ip:
+                table_result.append(Row_view(get_ip_info(ip)))
                 break
             table_result.append(Row_view(get_ip_info(ip)))
     return get_table(table_result)
 
 
 def main():
-    print(get_trace_as(sys.argv[1]))
+    print(get_trace_as('google.com'))
 
 
 if __name__ == '__main__':
