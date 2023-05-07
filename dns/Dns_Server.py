@@ -1,10 +1,27 @@
 import pickle
 import socket
+import time
 from datetime import datetime, timedelta
 from dnslib import DNSRecord, RCODE
 
 CACHE_PATH = 'cache.pickle'
 TTL = 10
+
+
+def pretty_parse(record, q_type):
+    questions = record.questions
+    res = ''
+    if questions:
+        qname = questions[0].qname
+        answers = record.rr
+        if answers:
+            for answer in answers:
+                if q_type == 'A':
+                    res += f'Доменное имя: {qname}\nIP-адрес: {answer.rdata}\n'
+                else:
+                    res += f'Доменное имя: {answer.rdata}\nIP-адрес: {qname}\n'
+
+    return res.encode('utf-8')
 
 
 class DnsServer:
@@ -26,20 +43,21 @@ class DnsServer:
         with open(CACHE_PATH, 'wb') as f:
             pickle.dump(self.cache, f)
 
-    # Получаем данные из кэша по ключу и проверяем их на валидность
+    # Получаем данные из кэша по ключу и проверяем их на просроченность
     def get_valid_cache_records(self, key):
         records_data = self.cache.get(key)
         if records_data:
             record, valid_period = records_data
+            # проверка на просроченные записи
             if datetime.now() - valid_period < timedelta(seconds=TTL):
                 return record
             del self.cache[key]
         return None
 
     def update_cache(self, key, record):
-        self.cache[(key, record.a.rtype)] = (record, datetime.now())  # ??
+        self.cache[(key, record.a.rtype)] = (record, datetime.now())
 
-    def query_solution(self, query_data):  # ??
+    def query_solution(self, query_data):
         try:
             query = DNSRecord.parse(query_data)
             key = (query.q.qname, query.a.rtype)
@@ -49,14 +67,12 @@ class DnsServer:
                 return cache_record.pack()
             # DNS google '8.8.8.8'
             # -//- yandex '77.88.8.1'
-            resp = query.send('77.88.8.1', 53)
+            resp = query.send('77.88.8.1', 53, timeout=5)
             resp_record = DNSRecord.parse(resp)
-
             # Если ответ получен успешно, добавляем запись в кэш и сохраняем его в файл
             if resp_record.header.rcode == RCODE.NOERROR:
                 self.update_cache(resp_record.a.rname, resp_record)
                 self.save_cache()
-
             return resp
         except Exception as e:
             print(f"Ошибка: {e}")
@@ -72,7 +88,6 @@ class DnsServer:
             while True:
                 query_data, addr = server_socket.recvfrom(1024)
                 resp_data = self.query_solution(query_data)
-
                 if resp_data:
                     server_socket.sendto(resp_data, addr)
 
