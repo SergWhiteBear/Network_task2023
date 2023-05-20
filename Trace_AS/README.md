@@ -14,4 +14,4 @@
 
 ### Демонстрация работы программы:
 
-![](https://im3.ezgif.com/tmp/ezgif-3-d674c436c3.gif)
+![](Screens and gif/Trace_AS.gif)
