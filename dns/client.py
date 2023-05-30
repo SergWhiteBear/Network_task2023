@@ -4,7 +4,7 @@ from dnslib import DNSRecord
 import random
 
 domains = ['vk.com', 'ya.ru', 'amazon.com', 'openai.com', 'e1.ru']
-query_types = ['A']
+query_types = ['A', 'NS']
 
 
 def check_valid_ip(ip):

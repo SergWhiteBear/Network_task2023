@@ -1,6 +1,6 @@
 import argparse
 
-import vk_api
+import requests
 from tabulate import tabulate
 
 from config import TOKEN
@@ -9,59 +9,71 @@ from config import TOKEN
 class VkApi:
     def __init__(self, user_id):
         self.user_id = user_id
-        self.vk_session = vk_api.VkApi(token=TOKEN)
+        self.token = TOKEN
 
-    def get_user_status(self):
-        status = self.vk_session.method("status.get", {"user_id": self.user_id})
-        print(f'Status: {status["text"]}')
-
-    def get_user_name(self, other_user_id):
-        user = self.vk_session.method("users.get", {"user_ids": other_user_id})
-        return user[0]['first_name'], user[0]['last_name']
+    def get_user_info(self, user_id):
+        params = {
+            'access_token': self.token,
+            'user_id': user_id,
+            'v': 5.131
+        }
+        req = requests.get("https://api.vk.com/method/users.get?", params=params).json()
+        info = req["response"][0]
+        return info['id'], info['first_name'], info['last_name']
 
     def get_friends_list(self):
-        output = list(list())
-        friends = self.vk_session.method("friends.get", {"user_id": self.user_id})
+        friends_req = requests.get("https://api.vk.com/method/friends.get?",
+                                   params={
+                                       'access_token': self.token,
+                                       'user_id': self.user_id,
+                                       'v': 5.131
+                                   }).json()['response']
         print('Friends:')
-        for friend in friends["items"]:
-            row = [
-                friend,
-                self.get_user_name(friend)[0],
-                self.get_user_name(friend)[1]
-            ]
-            output.append(row)
-        print(tabulate(output, headers=['id', 'Name', 'Last_Name']))
-
-    def get_albums_names(self):
-        albums = self.vk_session.method("photos.getAlbums", {"owner_id": self.user_id})
-        print('Albums name:')
-        for name_album in albums["items"]:
-            print(name_album['title'])
+        self.print_table(friends_req)
 
     def get_followers(self):
-        output = list(list())
-        followers = self.vk_session.method("users.getFollowers", {"user_id": self.user_id})
+        followers_req = requests.get("https://api.vk.com/method/users.getFollowers?",
+                                     params={
+                                         'access_token': self.token,
+                                         'user_id': self.user_id,
+                                         'v': 5.131
+                                     }).json()['response']
         print("Followers:")
-        for follower in followers["items"]:
-            row = [
-                follower,
-                self.get_user_name(follower)[0],
-                self.get_user_name(follower)[1]
-            ]
-            output.append(row)
-        print(tabulate(output, headers=['id', 'Name', 'Last_Name']))
+        self.print_table(followers_req)
 
     def get_groups(self):
         output = list(list())
-        groups = self.vk_session.method("groups.get", {"user_id": self.user_id})
+        groups_req = requests.get("https://api.vk.com/method/groups.get?",
+                                  params={
+                                      'access_token': self.token,
+                                      'group_id': self.user_id,
+                                      'v': 5.131
+                                  }).json()['response']
         print("Groups name:")
-        for group in groups["items"]:
-            group_info = self.vk_session.method("groups.getById", {"group_id": group})
-            row = [group,
-                   group_info[0]['name'],
-                   group_info[0]['screen_name']]
+        for group in groups_req["items"]:
+            group_info = requests.get("https://api.vk.com/method/groups.getById?", params={
+                'access_token': self.token,
+                'group_id': group,
+                'v': 5.131
+            }).json()['response'][0]
+            row = [
+                group_info['id'],
+                group_info['name'],
+                group_info['screen_name'],
+            ]
             output.append(row)
-        print(tabulate(output, headers=['id', 'Name', 'Screen_name']))
+        print(tabulate(output, headers=['id', 'name', 'screen_name']))
+
+    def print_table(self, req_info):
+        output = list(list())
+        for item in req_info["items"]:
+            row = [
+                item,
+                self.get_user_info(item)[1],
+                self.get_user_info(item)[2]
+            ]
+            output.append(row)
+        print(tabulate(output, headers=['id', 'Name', 'Last_Name']))
 
 
 def main():
@@ -90,18 +102,6 @@ def main():
         action="store_true",
         help='user groups list print'
     )
-    parser.add_argument(
-        '-s',
-        '--status',
-        action="store_true",
-        help='user status'
-    )
-    parser.add_argument(
-        '-a',
-        '--albums',
-        action="store_true",
-        help='albums names'
-    )
     args = parser.parse_args()
 
     vk = VkApi(args.userId)
@@ -111,10 +111,6 @@ def main():
         vk.get_followers()
     if args.groups:
         vk.get_groups()
-    if args.status:
-        vk.get_user_status()
-    if args.albums:
-        vk.get_albums_names()
 
 
 if __name__ == '__main__':
