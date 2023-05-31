@@ -16,7 +16,7 @@ def domain_to_ip(domain_name):
     try:
         ip = socket.gethostbyname(domain_name)
         return ip
-    except socket.gaierror:
+    except:
         return "Не удалось разрешить IP-адрес"
 
 
@@ -24,7 +24,7 @@ def ip_to_domain(ip):
     try:
         domain_name = socket.gethostbyaddr(ip)[0]
         return domain_name
-    except socket.herror:
+    except:
         return "Не удалось разрешить доменное имя"
 
 
@@ -39,17 +39,22 @@ def main():
             print(domain + ' ' + ip_to_domain(domain))
         else:
             print(domain + ' ' + domain_to_ip(domain))
-        query_data = DNSRecord.question(domain, random.choice(query_types)).pack()
+
         print('-----------------------------------')
+
+        # Формирование запроса
+        query_data = DNSRecord.question(domain, random.choice(query_types)).pack()
+
+        # Отправляю запрос
         client_socket.sendto(query_data, server_address)
 
+        # Получаю ответ
         resp_data, _ = client_socket.recvfrom(1024)
         resp = DNSRecord.parse(resp_data)
 
-        print(f"{resp}")
+        print(resp)
 
     client_socket.close()
-
 
 if __name__ == "__main__":
     main()
