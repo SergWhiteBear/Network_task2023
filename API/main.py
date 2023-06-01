@@ -12,12 +12,13 @@ class VkApi:
         self.token = TOKEN
 
     def get_user_info(self, user_id):
-        params = {
-            'access_token': self.token,
-            'user_id': user_id,
-            'v': 5.131
-        }
-        req = requests.get("https://api.vk.com/method/users.get?", params=params).json()
+
+        req = requests.get("https://api.vk.com/method/users.get?",
+                           params={
+                                'access_token': self.token,
+                                'user_id': user_id,
+                                'v': 5.131
+                            }).json()
         info = req["response"][0]
         return info['id'], info['first_name'], info['last_name']
 
@@ -75,7 +76,8 @@ class VkApi:
             output.append(row)
         print(tabulate(output, headers=['id', 'Name', 'Last_Name']))
 
-
+# 284104706
+# 242423755
 def main():
     parser = argparse.ArgumentParser(description='Using the Vk API')
     parser.add_argument(
