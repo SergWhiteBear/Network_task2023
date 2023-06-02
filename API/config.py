@@ -1,1 +1,1 @@
-TOKEN = 'Your token'
+TOKEN = 'vk1.a.yXImfmVBhlTnP0sOLgyCuJ67hCoCg0yIjjozeIp6qEbgIGhxp4kOOuPgay1IYwoY_ERouSOgBwLIyj3LEqG9NcN8hjjBoaE_iOcrD08WLI2UOaV_duM7kc_13E5Wj_z-uwnESwTpAUjM7KZ1dBf6_Sx0tdII7VPPRc2yh7XRE-o6_MMe9GxwxesQHJK20ThVlDeL8c2Aju38Gf-cqYFyPA'
