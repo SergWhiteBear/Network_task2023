@@ -17,3 +17,4 @@
 ## Демонстрация работы:
 
 ![](gif/sntp_gif.gif)
+![](gif/Time.png)

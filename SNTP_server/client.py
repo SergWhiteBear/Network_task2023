@@ -9,11 +9,14 @@ def run_client():
 
         while True:
             # Отправка запроса на сервер
-            client_socket.sendto(b"Time Request", (HOST, PORT))
+            try:
+                client_socket.sendto(b"Time Request", (HOST, PORT))
 
-            # Получение ответа от сервера
-            data, server_address = client_socket.recvfrom(1024)
-            print(f"Текущее точное время: {data.decode()}")
+                # Получение ответа от сервера
+                data, server_address = client_socket.recvfrom(1024)
+                print(f"Текущее точное время: {data.decode()}")
+            except KeyboardInterrupt:
+                exit()
 
 
 if __name__ == "__main__":
